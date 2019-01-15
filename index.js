@@ -36,14 +36,18 @@ server.get("/api/zoos/:id", (req, res) => {
 
 
 server.post("/api/zoos", (req, res) => {
-	db("zoos")
-		.insert(req.body)
-		.then(ids => {
-			res.status(201).json(ids);
-		})
-		.catch(err => {
-			res.status(500).json({error: "There has been a server error on the POST route"});
-		});
+  if (req.body.name) {
+    db("zoos")
+      .insert(req.body)
+      .then(ids => {
+        res.status(201).json(ids);
+      })
+      .catch(err => {
+        res.status(500).json({error: "There has been a server error on the POST route"});
+      });
+    } else {
+      res.status(500).json({ error: "You must include a name"})
+    }
 });
 
 
