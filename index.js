@@ -1,5 +1,5 @@
-const express = require('express');
-const helmet = require('helmet');
+const express = require("express");
+const helmet = require("helmet");
 const knex = require("knex");
 
 const knexConfig = require("./knexfile.js");
@@ -13,70 +13,97 @@ const db = knex(knexConfig.development);
 // endpoints here
 
 server.get("/", (req, res) => {
-	res.send("API working");
+	res.status(200).send("API working");
 });
 
+// ZOO ENDPOINTS
 
 server.get("/api/zoos", (req, res) => {
 	db("zoos")
 		.then(zoos => {
-			res.status(200).json(zoos);
+			res.status(201).json(zoos);
 		})
-		.catch(err => res.status(500).json(err));
+		.catch(err => res.status(500).json({
+      error: "There has been a server error on the GET route",
+      err,
+    }));
 });
 
 server.get("/api/zoos/:id", (req, res) => {
-  db("zoos")
-    .where({ id: req.params.id})
+	db("zoos")
+		.where({ id: req.params.id })
 		.then(zoo => {
-			res.status(200).json(zoo);
+			res.status(201).json(zoo);
 		})
-		.catch(err => res.status(500).json(err));
+		.catch(err => res.status(500).json({
+      error: "There has been a server error on the GET route",
+      err,
+    }));
 });
-
 
 server.post("/api/zoos", (req, res) => {
-  if (req.body.name) {
-    db("zoos")
-      .insert(req.body)
-      .then(ids => {
-        res.status(201).json(ids);
-      })
-      .catch(err => {
-        res.status(500).json({error: "There has been a server error on the POST route"});
-      });
-    } else {
-      res.status(500).json({ error: "You must include a name"})
-    }
+	if (req.body.name) {
+		db("zoos")
+			.insert(req.body)
+			.then(ids => {
+				res.status(201).json(ids);
+			})
+			.catch(err => {
+				res.status(500).json({
+					error: "There has been a server error on the POST route",
+					err,
+				});
+			});
+	} else {
+		res.status(400).json({ error: "You must include a name" });
+	}
 });
-
 
 server.delete("/api/zoos/:id", (req, res) => {
 	db("zoos")
 		.where({ id: req.params.id })
 		.del()
 		.then(count => {
-			res.status(201).json(count);
+			if (count > 0) {
+				res.status(201).json({
+					message: `${count} record has been deleted.`,
+				});
+			} else {
+				res.status(404).json({
+					error: `The requested ID does not exist`,
+				});
+			}
 		})
 		.catch(err => {
-			res.status(500).json(err);
+			res.status(500).json({
+        error: "There has been a server error on the DELETE route",
+        err,
+      });
 		});
 });
 
 server.put("/api/zoos/:id", (req, res) => {
 	db("zoos")
-        .where({ id: req.params.id })
-        .update(req.body)
+		.where({ id: req.params.id })
+		.update(req.body)
 		.then(count => {
-			res.status(201).json(count);
+			if (count > 0) {
+				res.status(201).json({
+					message: `${count} record has been updated.`,
+				});
+			} else {
+				res.status(404).json({
+					error: `The requested ID does not exist`,
+				});
+			}
 		})
 		.catch(err => {
-			res.status(500).json(err);
+			res.status(500).json({
+				error: "There has been a server error on the PUT route",
+				err,
+			});
 		});
 });
-
-
-
 
 // THERE BE BEARS BELOW
 
@@ -85,21 +112,33 @@ server.get("/api/bears", (req, res) => {
 		.then(bears => {
 			res.status(200).json(bears);
 		})
-		.catch(err => res.status(500).json(err));
+		.catch(err =>
+			res
+				.status(500)
+				.json({
+					error: "There has been a server error on the PUT route",
+					err,
+				})
+		);
 });
-
 
 server.post("/api/bears", (req, res) => {
-	db("bears")
-		.insert(req.body)
-		.then(ids => {
-			res.status(201).json(ids);
-		})
-		.catch(err => {
-			res.status(500).json(err);
-		});
+	if (req.body.name) {
+		db("bears")
+			.insert(req.body)
+			.then(ids => {
+				res.status(201).json(ids);
+			})
+			.catch(err => {
+				res.status(500).json({
+					error: "There has been a server error on the PUT route",
+					err,
+				});
+			});
+	} else {
+		res.status(400).json({ error: "You must include a name" });
+	}
 });
-
 
 server.delete("/api/bears/:id", (req, res) => {
 	db("bears")
@@ -109,26 +148,29 @@ server.delete("/api/bears/:id", (req, res) => {
 			res.status(201).json(count);
 		})
 		.catch(err => {
-			res.status(500).json(err);
+			res.status(500).json({
+        error: "There has been a server error on the DELETE route",
+        err,
+      });
 		});
 });
 
-
 server.put("/api/bears/:id", (req, res) => {
 	db("bears")
-        .where({ id: req.params.id })
-        .update(req.body)
+		.where({ id: req.params.id })
+		.update(req.body)
 		.then(count => {
 			res.status(201).json(count);
 		})
 		.catch(err => {
-			res.status(500).json(err);
+			res.status(500).json({
+        error: "There has been a server error on the PUT route",
+        err,
+      });
 		});
 });
 
-
-
 const port = 3300;
 server.listen(port, function() {
-  console.log(`\n=== Web API Listening on http://localhost:${port} ===\n`);
+	console.log(`\n=== Web API Listening on http://localhost:${port} ===\n`);
 });
