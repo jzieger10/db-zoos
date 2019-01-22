@@ -21,24 +21,28 @@ server.get("/", (req, res) => {
 server.get("/api/zoos", (req, res) => {
 	db("zoos")
 		.then(zoos => {
-			res.status(201).json(zoos);
+			res.status(200).json(zoos);
 		})
-		.catch(err => res.status(500).json({
-      error: "There has been a server error on the GET route",
-      err,
-    }));
+		.catch(err =>
+			res.status(500).json({
+				error: "There has been a server error on the GET route",
+				err,
+			})
+		);
 });
 
 server.get("/api/zoos/:id", (req, res) => {
 	db("zoos")
 		.where({ id: req.params.id })
 		.then(zoo => {
-			res.status(201).json(zoo);
+			res.status(200).json(zoo);
 		})
-		.catch(err => res.status(500).json({
-      error: "There has been a server error on the GET route",
-      err,
-    }));
+		.catch(err =>
+			res.status(500).json({
+				error: "There has been a server error on the GET route",
+				err,
+			})
+		);
 });
 
 server.post("/api/zoos", (req, res) => {
@@ -46,7 +50,14 @@ server.post("/api/zoos", (req, res) => {
 		db("zoos")
 			.insert(req.body)
 			.then(ids => {
-				res.status(201).json(ids);
+				db("zoos")
+					.where({ id: ids[0] })
+					.then(zoo => {
+						res.status(201).json({
+							message: "The last record posted is shown here",
+							zoo,
+						});
+					});
 			})
 			.catch(err => {
 				res.status(500).json({
@@ -76,9 +87,9 @@ server.delete("/api/zoos/:id", (req, res) => {
 		})
 		.catch(err => {
 			res.status(500).json({
-        error: "There has been a server error on the DELETE route",
-        err,
-      });
+				error: "There has been a server error on the DELETE route",
+				err,
+			});
 		});
 });
 
@@ -113,12 +124,10 @@ server.get("/api/bears", (req, res) => {
 			res.status(200).json(bears);
 		})
 		.catch(err =>
-			res
-				.status(500)
-				.json({
-					error: "There has been a server error on the PUT route",
-					err,
-				})
+			res.status(500).json({
+				error: "There has been a server error on the PUT route",
+				err,
+			})
 		);
 });
 
@@ -127,7 +136,14 @@ server.post("/api/bears", (req, res) => {
 		db("bears")
 			.insert(req.body)
 			.then(ids => {
-				res.status(201).json(ids);
+				db("bears")
+					.where({ id: ids[0] })
+					.then(bear => {
+						res.status(201).json({
+							message: "The last record posted is shown here",
+							bear,
+						});
+					});
 			})
 			.catch(err => {
 				res.status(500).json({
@@ -149,9 +165,9 @@ server.delete("/api/bears/:id", (req, res) => {
 		})
 		.catch(err => {
 			res.status(500).json({
-        error: "There has been a server error on the DELETE route",
-        err,
-      });
+				error: "There has been a server error on the DELETE route",
+				err,
+			});
 		});
 });
 
@@ -164,9 +180,9 @@ server.put("/api/bears/:id", (req, res) => {
 		})
 		.catch(err => {
 			res.status(500).json({
-        error: "There has been a server error on the PUT route",
-        err,
-      });
+				error: "There has been a server error on the PUT route",
+				err,
+			});
 		});
 });
 
